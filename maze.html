@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Mini maze</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+
+        import * as THREE from './node_modules/three/build/three.module.js';
+
+        import { FirstPersonControls } from './node_modules/three/examples/jsm/controls/FirstPersonControls.js';
+        import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+
+        var camera, controls, scene, loader, renderer;
+
+        var clock = new THREE.Clock();
+
+        init();
+        animate();
+
+        function init() {
+
+            /* Camera
+            –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+            const fov = 45,
+                aspect = window.innerWidth / window.innerHeight,
+                near = 1,
+                far = 20000;
+
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
+
+            scene.fog = new THREE.Fog(scene.background, 1, 5000);
+
+            camera.position.set(0, 100, 200);
+
+
+            /* Geometry & Materials
+            –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+            var textureLoader = new THREE.TextureLoader();
+
+            var loader = new GLTFLoader();
+
+            loader.load('./assets/maze.glb', function (gltf) {
+
+                var model = gltf.scene;
+
+                model.scale.set(1, 1, 1);
+
+
+                var material = new THREE.MeshPhongMaterial();
+                var texture = textureLoader.load("./assets/wood-texture-old.jpg");
+
+                model.material = material;
+
+                gltf.scene.traverse(function (object) {
+                    if (object.isMesh) object.material.map = texture;
+                });
+
+                scene.add(model);
+
+            }, undefined, function (error) { console.error(error); });
+
+
+            /* Lighting
+            –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+            var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+            hemiLight.groundColor.setHSL(0.6, 1, 0.6);
+            hemiLight.color.setHSL(0.095, 1, 0.75);
+            hemiLight.position.set(0, 50, 0);
+            scene.add(hemiLight);
+
+            var hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10);
+            scene.add(hemiLightHelper);
+
+
+            var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.color.setHSL(0.1, 1, 0.95);
+            directionalLight.position.set(30, 50, 30);
+            scene.add(directionalLight);
+
+            var helper = new THREE.DirectionalLightHelper(directionalLight);
+            scene.add(helper);
+
+
+            /* Skydome
+            –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+            var skySphere = new THREE.SphereBufferGeometry(400, 15, 15);
+            var skyMaterial = new THREE.MeshLambertMaterial({
+                side: THREE.BackSide
+            });
+
+            var sky = new THREE.Mesh(skySphere, skyMaterial);
+            scene.add(sky);
+
+
+            /* Renderer
+            –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+
+            /* Controls
+            –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+            controls = new FirstPersonControls(camera, renderer.domElement);
+            controls.movementSpeed = 10;
+            controls.lookSpeed = 0.1;
+
+            controls.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
+
+        }
+
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            controls.update(clock.getDelta());
+            renderer.render(scene, camera);
+        }
+
+    </script>
+</body>
+
+</html>
