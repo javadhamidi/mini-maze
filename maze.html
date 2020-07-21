@@ -18,10 +18,11 @@
 <body>
     <script type="module">
 
-        import * as THREE from './node_modules/three/build/three.module.js';
+        import * as THREE from './three/three.module.js';
 
-        import { FirstPersonControls } from './node_modules/three/examples/jsm/controls/FirstPersonControls.js';
-        import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+        import { FirstPersonControls } from './three/FirstPersonControls.js';
+        import { GLTFLoader } from './three/GLTFLoader.js';
+        import { VRButton } from './three/VRButton.js';
 
         var camera, controls, scene, loader, renderer;
 
@@ -47,7 +48,7 @@
 
             scene.fog = new THREE.Fog(scene.background, 1, 5000);
 
-            camera.position.set(0, 100, 200);
+            camera.position.set(0, 10, 0);
 
 
             /* Geometry & Materials
@@ -119,6 +120,9 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
+            document.body.appendChild( VRButton.createButton( renderer ) );
+            renderer.xr.enabled = true;
+
 
             /* Controls
             –––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -127,12 +131,16 @@
             controls.movementSpeed = 10;
             controls.lookSpeed = 0.1;
 
-            controls.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
+            controls.lookAt(new THREE.Vector3(10, 10, 0));
 
         }
 
 
         function animate() {
+
+            // camera.position.set(camera.position.x, 10, camera.position.z);
+            // console.log(camera.position.set);
+
             requestAnimationFrame(animate);
 
             controls.update(clock.getDelta());
