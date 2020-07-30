@@ -29,7 +29,7 @@
         var clock = new THREE.Clock();
 
         init();
-        animate();
+
 
         function init() {
 
@@ -48,7 +48,8 @@
 
             scene.fog = new THREE.Fog(scene.background, 1, 5000);
 
-            camera.position.set(0, 10, 0);
+            // camera.position.set(0, 10, 0);
+            camera.position.set(0, 20, 0);
 
 
             /* Geometry & Materials
@@ -117,11 +118,12 @@
             –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
             renderer = new THREE.WebGLRenderer();
+
+            document.body.appendChild(VRButton.createButton(renderer));
+            renderer.xr.enabled = true;
+
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-
-            document.body.appendChild( VRButton.createButton( renderer ) );
-            renderer.xr.enabled = true;
 
 
             /* Controls
@@ -133,18 +135,33 @@
 
             controls.lookAt(new THREE.Vector3(10, 10, 0));
 
+
+            /* Other
+            –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+            window.addEventListener('resize', onWindowResize, false);
+
         }
 
 
-        function animate() {
+        function animate(time) {
 
-            // camera.position.set(camera.position.x, 10, camera.position.z);
-            // console.log(camera.position.set);
-
-            requestAnimationFrame(animate);
+            camera.position.set(camera.position.x, 10, camera.position.z);  // is this causing left click to stick?
 
             controls.update(clock.getDelta());
             renderer.render(scene, camera);
+        }
+
+        renderer.setAnimationLoop(animate);
+
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
         }
 
     </script>
